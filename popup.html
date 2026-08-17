@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MySitePeak</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 320px;
+      padding: 12px;
+    }
+    h1 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    #url {
+      font-size: 12px;
+      word-break: break-all;
+      background: #f0f0f0;
+      padding: 6px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    #result {
+      font-size: 15px;
+      font-weight: bold;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    .low-risk { background: #d4edda; color: #155724; }
+    .medium-risk { background: #fff3cd; color: #856404; }
+    .high-risk { background: #f8d7da; color: #721c24; }
+    #reasons {
+      font-size: 12px;
+      padding-left: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>MySitePeak</h1>
+  <div id="url">Loading...</div>
+  <div id="result">Analyzing...</div>
+  <ul id="reasons"></ul>
+  <script src="heuristics.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>
