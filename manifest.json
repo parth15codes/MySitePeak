@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MySitePeak",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "description": "Local, privacy-first phishing risk analyzer.",
   "action": {
     "default_popup": "popup.html"
@@ -9,5 +9,18 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["activeTab", "tabs"]
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": ["activeTab", "tabs"],
+  "web_accessible_resources": [
+    {
+      "resources": ["forest_model.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
