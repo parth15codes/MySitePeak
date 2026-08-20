@@ -9,6 +9,15 @@ async function runScan() {
   const subtitleEl = document.getElementById("risk-subtitle");
   const reasonsList = document.getElementById("reasons");
 
+  // Show a brief "scanning" state so the user sees feedback
+  resultCard.className = "neutral";
+  titleEl.textContent = "🔄 Scanning...";
+  subtitleEl.textContent = "";
+  reasonsList.innerHTML = "";
+
+  // Small artificial delay so the scanning state is actually visible
+  await new Promise(resolve => setTimeout(resolve, 400));
+
   if (currentTab && currentTab.url && (currentTab.url.startsWith("http://") || currentTab.url.startsWith("https://"))) {
     const hostname = new URL(currentTab.url).hostname;
     domainEl.textContent = hostname;
@@ -47,7 +56,6 @@ async function runScan() {
       }
     }
 
-    // ML prediction - dev console only
     try {
       const features = extractMLFeatures(currentTab.url);
       const phishingProb = await predictWithML(features);
@@ -66,5 +74,14 @@ async function runScan() {
   }
 }
 
-document.getElementById("scan-again").addEventListener("click", runScan);
+document.getElementById("scan-again").addEventListener("click", () => {
+  const btn = document.getElementById("scan-again");
+  btn.disabled = true;
+  btn.textContent = "Scanning...";
+  runScan().finally(() => {
+    btn.disabled = false;
+    btn.textContent = "↻ Scan Again";
+  });
+});
+
 runScan();
