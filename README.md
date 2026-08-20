@@ -8,12 +8,6 @@
 
 Built as a personal cybersecurity project to understand how phishing detection actually works — from URL-based heuristics to a locally-trained machine learning model — while keeping everything 100% local. No cloud services, no external APIs, no user data ever leaves the browser.
 
----
-
-## ✨ Features
-...
-
----
 
 ## ✨ Features
 
