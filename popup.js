@@ -1,31 +1,53 @@
-chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
+async function runScan() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
   const currentTab = tabs[0];
-  const urlDiv = document.getElementById("url");
-  const resultDiv = document.getElementById("result");
+
+  const domainEl = document.getElementById("site-domain");
+  const urlEl = document.getElementById("site-url");
+  const resultCard = document.getElementById("result-card");
+  const titleEl = document.getElementById("risk-title");
+  const subtitleEl = document.getElementById("risk-subtitle");
   const reasonsList = document.getElementById("reasons");
 
   if (currentTab && currentTab.url && (currentTab.url.startsWith("http://") || currentTab.url.startsWith("https://"))) {
-    urlDiv.textContent = currentTab.url;
+    const hostname = new URL(currentTab.url).hostname;
+    domainEl.textContent = hostname;
+    urlEl.textContent = currentTab.url;
 
-    // Heuristic scoring (primary, shown to user)
-    const { score, reasons } = analyzeUrl(currentTab.url);
-    const level = getRiskLevel(score);
+    const knownSafe = await isKnownDomain(hostname);
 
-    resultDiv.textContent = `${level} (Score: ${score}/100)`;
-    resultDiv.className = level.toLowerCase().replace(" ", "-");
-
-    reasonsList.innerHTML = "";
-    if (reasons.length === 0) {
-      reasonsList.innerHTML = "<li>No risk factors detected.</li>";
+    if (knownSafe) {
+      resultCard.className = "low-risk";
+      titleEl.innerHTML = "🟢 LOW RISK";
+      subtitleEl.textContent = "Known trusted domain";
+      reasonsList.innerHTML = `
+        <li>✓ Domain appears on a list of well-established, trusted sites</li>
+        <li>✓ ${currentTab.url.startsWith("https") ? "HTTPS enabled" : "Note: not using HTTPS"}</li>
+      `;
     } else {
-      reasons.forEach(reason => {
-        const li = document.createElement("li");
-        li.textContent = reason;
-        reasonsList.appendChild(li);
-      });
+      const { score, reasons } = analyzeUrl(currentTab.url);
+      const level = getRiskLevel(score);
+
+      let emoji = "🟢", label = "LOW RISK", subtitle = "No significant risk factors found", cls = "low-risk";
+      if (level === "Medium Risk") {
+        emoji = "🟠"; label = "MEDIUM RISK"; subtitle = "Some suspicious patterns detected"; cls = "medium-risk";
+      } else if (level === "High Risk") {
+        emoji = "🔴"; label = "HIGH RISK"; subtitle = "Multiple phishing indicators found"; cls = "high-risk";
+      }
+
+      resultCard.className = cls;
+      titleEl.innerHTML = `${emoji} ${label}`;
+      subtitleEl.textContent = subtitle;
+
+      if (reasons.length === 0) {
+        reasonsList.innerHTML = "<li>✓ No risk factors detected</li>";
+      } else {
+        const icon = level === "High Risk" ? "🚨" : "⚠";
+        reasonsList.innerHTML = reasons.map(r => `<li>${icon} ${r}</li>`).join("");
+      }
     }
 
-    // ML-based prediction (hidden from UI for now — model needs more tuning)
+    // ML prediction - dev console only
     try {
       const features = extractMLFeatures(currentTab.url);
       const phishingProb = await predictWithML(features);
@@ -35,9 +57,14 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       console.error("ML prediction failed:", err);
     }
   } else {
-    urlDiv.textContent = currentTab?.url || "Unknown page";
-    resultDiv.textContent = "Not applicable — internal or non-web page.";
-    resultDiv.className = "";
+    domainEl.textContent = "N/A";
+    urlEl.textContent = currentTab?.url || "Unknown page";
+    resultCard.className = "neutral";
+    titleEl.textContent = "Not applicable";
+    subtitleEl.textContent = "Internal or non-web page";
     reasonsList.innerHTML = "";
   }
-});
+}
+
+document.getElementById("scan-again").addEventListener("click", runScan);
+runScan();
