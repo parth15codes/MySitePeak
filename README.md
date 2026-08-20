@@ -8,6 +8,15 @@
 
 Built as a personal cybersecurity project to understand how phishing detection actually works — from URL-based heuristics to a locally-trained machine learning model — while keeping everything 100% local. No cloud services, no external APIs, no user data ever leaves the browser.
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshots/low-risk-example.png" width="300" alt="Low risk result on a trusted site">
+  &nbsp;&nbsp;&nbsp;
+  <img src="screenshots/high-risk-example.png" width="300" alt="High risk result on a suspicious site">
+</p>
+
+<p align="center"><em>Left: a trusted site correctly identified as low risk. Right: a suspicious URL flagged with clear reasoning.</em></p>
 
 ## ✨ Features
 
@@ -18,6 +27,16 @@ Built as a personal cybersecurity project to understand how phishing detection a
 - **Live toolbar badge** — color-coded risk indicator (green/yellow/red) updates automatically as you browse
 - **On-page warning banner** — visible alert injected directly into high-risk pages
 - **Clean, structured popup UI** — shows current site, risk level, and clear reasoning
+
+## 🌐 Browser Compatibility
+
+MySitePeak is built on **Chrome's Manifest V3** extension standard, which means it works natively on any Chromium-based browser:
+
+- ✅ Google Chrome
+- ✅ Brave
+- ✅ Microsoft Edge
+- ✅ Opera
+- ❌ Firefox *(uses a different extension architecture — not currently supported)*
 
 ## 🧱 Tech Stack
 
