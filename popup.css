@@ -1,0 +1,127 @@
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  width: 340px;
+  margin: 0;
+  padding: 0;
+  background: #0a1220;
+  color: #e8edf5;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  background: linear-gradient(135deg, #1a2a4a 0%, #0a1220 100%);
+  border-bottom: 1px solid #223252;
+}
+
+.header img { width: 28px; height: 28px; }
+
+.header h1 {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.content { padding: 16px 18px; }
+
+.site-card {
+  background: #131f38;
+  border: 1px solid #223252;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.site-label {
+  font-size: 9.5px;
+  letter-spacing: 1px;
+  color: #5c6b85;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.site-domain {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8edf5;
+  margin-bottom: 2px;
+}
+
+.site-url {
+  font-size: 10.5px;
+  color: #6b7d9c;
+  word-break: break-all;
+}
+
+#result-card {
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  border: 1px solid;
+}
+
+.risk-title {
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.risk-subtitle {
+  font-size: 11.5px;
+  opacity: 0.85;
+  margin-left: 22px;
+}
+
+.low-risk { background: rgba(40,167,69,0.12); border-color: rgba(74,222,128,0.3); color: #4ade80; }
+.medium-risk { background: rgba(255,193,7,0.12); border-color: rgba(251,191,36,0.3); color: #fbbf24; }
+.high-risk { background: rgba(220,53,69,0.12); border-color: rgba(248,113,113,0.3); color: #f87171; }
+.neutral { background: #131f38; border-color: #223252; color: #9db4d4; }
+
+#reasons {
+  font-size: 12px;
+  color: #b8c4d9;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px 0;
+}
+
+#reasons li {
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+#scan-again {
+  width: 100%;
+  padding: 9px;
+  background: #182338;
+  color: #9db4d4;
+  border: 1px solid #223252;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+#scan-again:hover { background: #223252; color: #e8edf5; }
+
+#scan-again:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footer {
+  padding: 10px 18px;
+  font-size: 10px;
+  color: #5c6b85;
+  text-align: center;
+  border-top: 1px solid #182338;
+  letter-spacing: 0.3px;
+}
