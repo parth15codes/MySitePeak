@@ -31,3 +31,32 @@ function detectLoginForms() {
 
   return Array.from(forms);
 }
+
+function detectCrossDomainSubmission(form) {
+  const actionUrl = form.action; // browser resolves relative URLs automatically
+  if (!actionUrl) return null;
+
+  let actionHost;
+  try {
+    actionHost = new URL(actionUrl).hostname;
+  } catch {
+    return null;
+  }
+
+  const pageHost = window.location.hostname;
+
+  if (getRegistrableDomain(actionHost) !== getRegistrableDomain(pageHost)) {
+    return {
+      type: "cross_domain_form_submission",
+      severity: "high",
+      message: `Form submits to ${actionHost}, different from page domain ${pageHost}.`
+    };
+  }
+
+  return null;
+}
+
+function getRegistrableDomain(hostname) {
+  const parts = hostname.split(".");
+  return parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
+}
