@@ -66,9 +66,48 @@ function detectCrossDomainSubmission(form) {
   return null;
 }
 
+const COMPOUND_SUFFIXES = new Set([
+  "co.uk", "co.in", "co.jp", "co.kr", "co.nz", "co.za", "co.il", "co.id",
+  "com.au", "com.br", "com.mx", "com.sg", "com.tw", "com.hk", "com.cn",
+  "org.uk", "net.au", "gov.uk", "ac.in", "ac.uk"
+]);
+
 function getRegistrableDomain(hostname) {
-  const parts = hostname.split(".");
-  return parts.length >= 2 ? parts.slice(-2).join(".") : hostname;
+  const parts = hostname.toLowerCase().split(".");
+  if (parts.length < 2) return hostname;
+
+  const lastTwo = parts.slice(-2).join(".");
+  if (COMPOUND_SUFFIXES.has(lastTwo) && parts.length >= 3) {
+    return parts.slice(-3).join(".");
+  }
+
+  return lastTwo;
+}
+
+function detectHiddenIframes() {
+  const iframes = Array.from(document.querySelectorAll("iframe"));
+  const hidden = iframes.filter(isHiddenIframe);
+
+  if (hidden.length === 0) return null;
+
+  return {
+    type: "hidden_iframe_detected",
+    severity: "medium",
+    count: hidden.length,
+    message: `Found ${hidden.length} hidden or invisible iframe(s) on this page.`
+  };
+}
+
+function isHiddenIframe(iframe) {
+  const style = window.getComputedStyle(iframe);
+  const rect = iframe.getBoundingClientRect();
+
+  const zeroSize = rect.width === 0 || rect.height === 0;
+  const displayNone = style.display === "none";
+  const visibilityHidden = style.visibility === "hidden";
+  const offScreen = rect.right < 0 || rect.bottom < 0;
+
+  return zeroSize || displayNone || visibilityHidden || offScreen;
 }
 
 let knownBrandsSet = null;
