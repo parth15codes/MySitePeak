@@ -24,12 +24,17 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["source_analyzer.js"],
+      "run_at": "document_idle"
     }
   ],
   "permissions": ["activeTab", "tabs"],
   "web_accessible_resources": [
     {
-      "resources": ["forest_model.json", "known_domains.json"],
+      "resources": ["forest_model.json", "known_domains.json", "known_brands.json"],
       "matches": ["<all_urls>"]
     }
   ]
