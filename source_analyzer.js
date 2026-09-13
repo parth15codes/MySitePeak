@@ -113,6 +113,32 @@ function isHiddenIframe(iframe) {
   return zeroSize || displayNone || visibilityHidden || offScreen;
 }
 
+function detectHiddenForms() {
+  const forms = Array.from(document.querySelectorAll("form"));
+  const hidden = forms.filter(isHiddenElement);
+
+  if (hidden.length === 0) return null;
+
+  return {
+    type: "hidden_form_detected",
+    severity: "medium",
+    count: hidden.length,
+    message: `Found ${hidden.length} hidden form(s) on this page.`
+  };
+}
+
+function isHiddenElement(el) {
+  const style = window.getComputedStyle(el);
+  const rect = el.getBoundingClientRect();
+
+  const zeroSize = rect.width === 0 || rect.height === 0;
+  const displayNone = style.display === "none";
+  const visibilityHidden = style.visibility === "hidden";
+  const offScreen = rect.right < 0 || rect.bottom < 0;
+
+  return zeroSize || displayNone || visibilityHidden || offScreen;
+}
+
 let knownBrandsSet = null;
 
 async function loadKnownBrands() {
