@@ -25,6 +25,9 @@ async function analyzeSource() {
   const typosquatFinding = await detectTyposquat(window.location.hostname);
   if (typosquatFinding) findings.push(typosquatFinding);
 
+  const ipFormFindings = detectIpBasedForms();
+  findings.push(...ipFormFindings);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -70,6 +73,37 @@ function detectCrossDomainSubmission(form) {
   }
 
   return null;
+}
+
+const IP_REGEX = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+
+function isIpAddress(hostname) {
+  const match = hostname.match(IP_REGEX);
+  if (!match) return false;
+  return match.slice(1).every(octet => Number(octet) <= 255);
+}
+
+function detectIpBasedForms() {
+  const forms = Array.from(document.querySelectorAll("form"));
+  const findings = [];
+
+  for (const form of forms) {
+    if (!form.action) continue;
+    try {
+      const actionHost = new URL(form.action).hostname;
+      if (isIpAddress(actionHost)) {
+        findings.push({
+          type: "ip_based_form_action",
+          severity: "high",
+          message: `Form submits to a raw IP address (${actionHost}) instead of a domain name.`
+        });
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return findings;
 }
 
 const COMPOUND_SUFFIXES = new Set([
