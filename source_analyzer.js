@@ -19,6 +19,9 @@ async function analyzeSource() {
   const brandFinding = await detectBrandMismatch();
   if (brandFinding) findings.push(brandFinding);
 
+  const linkFindings = await detectSuspiciousLinks();
+  findings.push(...linkFindings);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -136,6 +139,52 @@ async function detectBrandMismatch() {
   }
 
   return null;
+}
+
+let knownDomainsSetForLinks = null;
+
+async function loadKnownDomainsForLinks() {
+  if (knownDomainsSetForLinks) return knownDomainsSetForLinks;
+  const response = await fetch(chrome.runtime.getURL("known_domains.json"));
+  const domainsArray = await response.json();
+  knownDomainsSetForLinks = new Set(domainsArray);
+  return knownDomainsSetForLinks;
+}
+
+async function detectSuspiciousLinks() {
+  const brands = await loadKnownBrands();
+  const knownDomains = await loadKnownDomainsForLinks();
+  const links = Array.from(document.querySelectorAll("a[href]"));
+  const findings = [];
+
+  for (const link of links) {
+    const text = link.textContent.toLowerCase().trim();
+    if (!text) continue;
+
+    let linkHost;
+    try {
+      linkHost = new URL(link.href, window.location.href).hostname.toLowerCase();
+    } catch {
+      continue;
+    }
+
+    const linkDomain = getRegistrableDomain(linkHost);
+
+    if (knownDomains.has(linkDomain)) continue;
+
+    for (const brand of brands) {
+      if (text.includes(brand) && !linkDomain.includes(brand)) {
+        findings.push({
+          type: "suspicious_link_text_mismatch",
+          severity: "medium",
+          message: `Link text mentions "${brand}" but points to ${linkDomain}.`
+        });
+        break;
+      }
+    }
+  }
+
+  return findings;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
