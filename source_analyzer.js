@@ -22,6 +22,9 @@ async function analyzeSource() {
   const linkFindings = await detectSuspiciousLinks();
   findings.push(...linkFindings);
 
+  const typosquatFinding = await detectTyposquat(window.location.hostname);
+  if (typosquatFinding) findings.push(typosquatFinding);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -137,6 +140,59 @@ function isHiddenElement(el) {
   const offScreen = rect.right < 0 || rect.bottom < 0;
 
   return zeroSize || displayNone || visibilityHidden || offScreen;
+}
+
+const KNOWN_BRAND_DOMAINS = [
+  "paypal.com", "amazon.com", "google.com", "microsoft.com", "apple.com",
+  "facebook.com", "instagram.com", "netflix.com", "linkedin.com", "dropbox.com",
+  "adobe.com", "coinbase.com", "binance.com", "chase.com", "bankofamerica.com",
+  "wellsfargo.com", "americanexpress.com", "ebay.com", "hsbc.com", "citibank.com",
+  "outlook.com", "yahoo.com", "twitter.com", "x.com", "whatsapp.com",
+  "steampowered.com", "discord.com", "spotify.com", "github.com", "docusign.com"
+];
+
+function levenshteinDistance(a, b) {
+  const matrix = Array.from({ length: a.length + 1 }, (_, i) =>
+    Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+  );
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return matrix[a.length][b.length];
+}
+
+async function detectTyposquat(hostname) {
+  const domain = getRegistrableDomain(hostname.toLowerCase());
+
+  // Skip the check entirely if this domain is already in our trusted
+  // Tranco allowlist -- eliminates coincidental collisions with major,
+  // completely legitimate sites (e.g. bbc.com vs hsbc.com).
+  const knownDomains = await loadKnownDomainsForLinks();
+  if (knownDomains.has(domain)) return null;
+
+  for (const realDomain of KNOWN_BRAND_DOMAINS) {
+    if (domain === realDomain) continue;
+
+    const distance = levenshteinDistance(domain, realDomain);
+    if (distance > 0 && distance <= 2 && Math.abs(domain.length - realDomain.length) <= 2) {
+      return {
+        type: "typosquat_suspected",
+        severity: "high",
+        message: `Domain "${domain}" closely resembles known brand domain "${realDomain}" (edit distance ${distance}).`
+      };
+    }
+  }
+
+  return null;
 }
 
 let knownBrandsSet = null;
