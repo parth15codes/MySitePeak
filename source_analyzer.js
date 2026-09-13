@@ -173,9 +173,6 @@ function levenshteinDistance(a, b) {
 async function detectTyposquat(hostname) {
   const domain = getRegistrableDomain(hostname.toLowerCase());
 
-  // Skip the check entirely if this domain is already in our trusted
-  // Tranco allowlist -- eliminates coincidental collisions with major,
-  // completely legitimate sites (e.g. bbc.com vs hsbc.com).
   const knownDomains = await loadKnownDomainsForLinks();
   if (knownDomains.has(domain)) return null;
 
@@ -193,6 +190,24 @@ async function detectTyposquat(hostname) {
   }
 
   return null;
+}
+
+// Unwired pending real-world testing: window.location.hostname always
+// returns Punycode (xn--...) for ANY non-Latin domain, safe or malicious,
+// so this may false-positive on legitimate international sites. Needs
+// verification against a real IDN site before it's safe to call from
+// analyzeSource().
+function detectPunycodeDomain(hostname) {
+  const labels = hostname.toLowerCase().split(".");
+  const hasPunycode = labels.some(label => label.startsWith("xn--"));
+
+  if (!hasPunycode) return null;
+
+  return {
+    type: "punycode_domain_detected",
+    severity: "high",
+    message: `Domain contains Punycode-encoded characters (${hostname}), often used to mimic Latin lookalike characters.`
+  };
 }
 
 let knownBrandsSet = null;
