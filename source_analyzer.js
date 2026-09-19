@@ -294,6 +294,45 @@ function detectDeceptiveSubdomain(hostname) {
   return null;
 }
 
+// Shelved: real sites (e.g. Docker's docs migration, docker.github.io ->
+// docs.docker.com) legitimately use cross-domain meta-refresh for
+// "we've moved" pages, indistinguishable from a phishing redirect by
+// code alone. Also often fires with a near-zero timer, meaning a
+// content-script check running at document_idle could lose the race
+// against the redirect anyway.
+function detectCrossDomainMetaRefresh() {
+  const metaTags = Array.from(document.querySelectorAll('meta[http-equiv="refresh" i]'));
+
+  for (const meta of metaTags) {
+    const content = meta.getAttribute("content");
+    if (!content) continue;
+
+    const urlMatch = content.match(/url\s*=\s*(.+)/i);
+    if (!urlMatch) continue;
+
+    let targetUrl = urlMatch[1].trim().replace(/^['"]|['"]$/g, "");
+
+    let targetHost;
+    try {
+      targetHost = new URL(targetUrl, window.location.href).hostname;
+    } catch {
+      continue;
+    }
+
+    const pageHost = window.location.hostname;
+
+    if (getRegistrableDomain(targetHost) !== getRegistrableDomain(pageHost)) {
+      return {
+        type: "cross_domain_meta_refresh",
+        severity: "high",
+        message: `Page auto-redirects to a different domain (${targetHost}) via meta-refresh.`
+      };
+    }
+  }
+
+  return null;
+}
+
 // Unwired pending real-world testing: window.location.hostname always
 // returns Punycode (xn--...) for ANY non-Latin domain, safe or malicious,
 // so this may false-positive on legitimate international sites. Needs
