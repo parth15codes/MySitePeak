@@ -28,6 +28,9 @@ async function analyzeSource() {
   const ipFormFindings = detectIpBasedForms();
   findings.push(...ipFormFindings);
 
+  const subdomainFinding = detectDeceptiveSubdomain(window.location.hostname);
+  if (subdomainFinding) findings.push(subdomainFinding);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -219,6 +222,25 @@ async function detectTyposquat(hostname) {
         type: "typosquat_suspected",
         severity: "high",
         message: `Domain "${domain}" closely resembles known brand domain "${realDomain}" (edit distance ${distance}).`
+      };
+    }
+  }
+
+  return null;
+}
+
+function detectDeceptiveSubdomain(hostname) {
+  const host = hostname.toLowerCase();
+  const actualDomain = getRegistrableDomain(host);
+
+  for (const brandDomain of KNOWN_BRAND_DOMAINS) {
+    if (actualDomain === brandDomain) continue;
+
+    if (host.includes(brandDomain)) {
+      return {
+        type: "deceptive_subdomain",
+        severity: "high",
+        message: `Hostname contains "${brandDomain}" but the real domain is ${actualDomain}.`
       };
     }
   }
