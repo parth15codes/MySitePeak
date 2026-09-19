@@ -14,6 +14,9 @@ async function analyzeSource() {
       const crossDomainFinding = detectCrossDomainSubmission(form);
       if (crossDomainFinding) findings.push(crossDomainFinding);
     }
+
+    const insecureFinding = detectInsecureLoginForm(loginForms);
+    if (insecureFinding) findings.push(insecureFinding);
   }
 
   const brandFinding = await detectBrandMismatch();
@@ -55,6 +58,24 @@ function detectLoginForms() {
   }
 
   return Array.from(forms);
+}
+
+function detectInsecureLoginForm(loginForms) {
+  const pageIsInsecure = window.location.protocol === "http:";
+
+  for (const form of loginForms) {
+    const actionIsInsecure = form.action && form.action.startsWith("http://");
+
+    if (pageIsInsecure || actionIsInsecure) {
+      return {
+        type: "insecure_login_form",
+        severity: "high",
+        message: "Login form is on an unencrypted (HTTP) page or submits over HTTP instead of HTTPS."
+      };
+    }
+  }
+
+  return null;
 }
 
 function detectCrossDomainSubmission(form) {
