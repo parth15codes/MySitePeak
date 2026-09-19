@@ -31,6 +31,9 @@ async function analyzeSource() {
   const subdomainFinding = detectDeceptiveSubdomain(window.location.hostname);
   if (subdomainFinding) findings.push(subdomainFinding);
 
+  const clipboardFinding = detectClipboardHijacking();
+  if (clipboardFinding) findings.push(clipboardFinding);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -107,6 +110,28 @@ function detectIpBasedForms() {
   }
 
   return findings;
+}
+
+const CRYPTO_ADDRESS_REGEX = /\b(0x[a-fA-F0-9]{40}|[13][a-km-zA-HJ-NP-Z1-9]{25,34}|bc1[a-z0-9]{25,39})\b/;
+const CLIPBOARD_API_REGEX = /addEventListener\s*\(\s*["']copy["']|addEventListener\s*\(\s*["']cut["']|clipboardData\.setData|execCommand\s*\(\s*["']copy["']/;
+
+function detectClipboardHijacking() {
+  const scripts = Array.from(document.querySelectorAll("script:not([src])"));
+
+  for (const script of scripts) {
+    const code = script.textContent;
+    if (!code) continue;
+
+    if (CLIPBOARD_API_REGEX.test(code) && CRYPTO_ADDRESS_REGEX.test(code)) {
+      return {
+        type: "clipboard_hijack_suspected",
+        severity: "medium",
+        message: "An inline script overrides copy/paste behavior near what looks like a cryptocurrency address — possible clipboard hijacking."
+      };
+    }
+  }
+
+  return null;
 }
 
 const COMPOUND_SUFFIXES = new Set([
