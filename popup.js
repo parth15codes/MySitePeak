@@ -120,15 +120,42 @@ async function runPageAnalysis() {
   }
 }
 
-document.getElementById("scan-again").addEventListener("click", () => {
-  const btn = document.getElementById("scan-again");
-  btn.disabled = true;
-  btn.textContent = "Scanning...";
-  runScan().finally(() => {
-    btn.disabled = false;
-    btn.textContent = "↻ Scan Again";
-  });
-});
+function playVaultSequence(minDurationMs) {
+  const overlay = document.getElementById("vault-overlay");
+  const statusEl = document.getElementById("vault-status");
 
-runScan();
-runPageAnalysis();
+  overlay.classList.add("stage-verifying");
+  statusEl.textContent = "VERIFYING...";
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      statusEl.textContent = "ACCESS GRANTED";
+      overlay.classList.add("stage-open");
+      setTimeout(resolve, 700);
+    }, minDurationMs);
+  });
+}
+
+async function init() {
+  const overlay = document.getElementById("vault-overlay");
+
+  document.getElementById("scan-again").addEventListener("click", () => {
+    const btn = document.getElementById("scan-again");
+    btn.disabled = true;
+    btn.textContent = "Scanning...";
+    runScan().finally(() => {
+      btn.disabled = false;
+      btn.textContent = "↻ Scan Again";
+    });
+  });
+
+  const scanPromise = runScan();
+  const pageAnalysisPromise = runPageAnalysis();
+  const vaultPromise = playVaultSequence(2200);
+
+  await Promise.all([scanPromise, pageAnalysisPromise, vaultPromise]);
+
+  overlay.classList.add("vault-hidden");
+}
+
+init();

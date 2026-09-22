@@ -6,6 +6,44 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <div id="vault-overlay">
+    <div id="vault-status">SECURED PERIMETER</div>
+    <div id="vault-dial-wrap">
+      <div class="vault-gear" id="vault-gear-left"></div>
+      <div id="vault-dial">
+        <div id="vault-dial-marker"></div>
+      </div>
+      <div class="vault-gear" id="vault-gear-right"></div>
+    </div>
+    <div id="vault-steam">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div id="vault-door">
+      <svg id="vault-door-svg" viewBox="0 0 300 300">
+        <circle cx="150" cy="150" r="145" fill="url(#doorRim)" stroke="#0a0b0e" stroke-width="3"/>
+        <circle cx="150" cy="150" r="128" fill="url(#doorFace)" stroke="#14161a" stroke-width="2"/>
+        <g id="vault-bolts"></g>
+        <circle cx="150" cy="150" r="62" fill="url(#wheelHub)" stroke="#0a0b0e" stroke-width="2"/>
+        <g id="vault-spokes" stroke="#5b6472" stroke-width="10" stroke-linecap="round"></g>
+        <circle cx="150" cy="150" r="16" fill="#3a3f4a" stroke="#0a0b0e" stroke-width="2"/>
+        <defs>
+          <radialGradient id="doorRim" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#6b7280"/>
+            <stop offset="100%" stop-color="#22252c"/>
+          </radialGradient>
+          <radialGradient id="doorFace" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#4b5563"/>
+            <stop offset="100%" stop-color="#1a1c21"/>
+          </radialGradient>
+          <radialGradient id="wheelHub" cx="35%" cy="30%" r="75%">
+            <stop offset="0%" stop-color="#7b8290"/>
+            <stop offset="100%" stop-color="#2b2f38"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
   <div class="header">
     <img src="icons/icon48.png" alt="MySitePeak logo">
     <h1>MySitePeak</h1>
@@ -38,6 +76,7 @@
   <script src="js_features.js"></script>
   <script src="ml_predict.js"></script>
   <script src="known_domains_check.js"></script>
+  <script src="vault_draw.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
