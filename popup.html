@@ -23,9 +23,11 @@
         <circle cx="150" cy="150" r="145" fill="url(#doorRim)" stroke="#0a0b0e" stroke-width="3"/>
         <circle cx="150" cy="150" r="128" fill="url(#doorFace)" stroke="#14161a" stroke-width="2"/>
         <g id="vault-bolts"></g>
-        <circle cx="150" cy="150" r="62" fill="url(#wheelHub)" stroke="#0a0b0e" stroke-width="2"/>
-        <g id="vault-spokes" stroke="#5b6472" stroke-width="10" stroke-linecap="round"></g>
-        <circle cx="150" cy="150" r="16" fill="#3a3f4a" stroke="#0a0b0e" stroke-width="2"/>
+        <g id="vault-wheel-spin">
+          <circle cx="150" cy="150" r="62" fill="url(#wheelHub)" stroke="#0a0b0e" stroke-width="2"/>
+          <g id="vault-spokes" stroke="#5b6472" stroke-width="10" stroke-linecap="round"></g>
+          <circle cx="150" cy="150" r="16" fill="#3a3f4a" stroke="#0a0b0e" stroke-width="2"/>
+        </g>
         <defs>
           <radialGradient id="doorRim" cx="35%" cy="30%" r="75%">
             <stop offset="0%" stop-color="#6b7280"/>
@@ -44,33 +46,47 @@
     </div>
   </div>
 
-  <div class="header">
-    <img src="icons/icon48.png" alt="MySitePeak logo">
-    <h1>MySitePeak</h1>
+  <div id="interior">
+    <div id="scanbar"></div>
+    <div class="header">
+      <div class="logo"><img src="icons/icon48.png" alt="MySitePeak logo"></div>
+      <h1>MYSITEPEAK<span class="cursor"></span></h1>
+    </div>
+    <div class="content">
+      <div class="ascii-div">════════ SYSTEM: PERIMETER SCAN ════════</div>
+
+      <div class="term-box">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <div class="label">CURRENT WEBSITE</div>
+        <div class="domain" id="site-domain">Loading...</div>
+        <div class="url" id="site-url"></div>
+      </div>
+
+      <div id="result-card" class="term-box neutral">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <div class="status-tag" id="risk-tag">[ SCANNING ]</div>
+        <div class="risk-title" id="risk-title">ANALYZING...</div>
+        <div class="risk-subtitle" id="risk-subtitle"></div>
+      </div>
+
+      <ul id="reasons" class="reasons"></ul>
+
+      <div class="ascii-div">──────── PAGE ANALYSIS ────────</div>
+
+      <div id="page-analysis-card" class="term-box neutral">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <div class="status-tag" id="page-analysis-tag">[ SCANNING ]</div>
+        <div class="risk-subtitle" id="page-analysis-status">Checking page source...</div>
+        <ul id="page-analysis-findings" class="findings"></ul>
+      </div>
+
+      <button id="scan-again">RUN SCAN AGAIN</button>
+    </div>
+    <div class="footer">PRIVATE · LOCAL · PHISHING PROTECTION</div>
   </div>
-  <div class="content">
-    <div class="site-card">
-      <div class="site-label">CURRENT WEBSITE</div>
-      <div class="site-domain" id="site-domain">Loading...</div>
-      <div class="site-url" id="site-url"></div>
-    </div>
-
-    <div id="result-card" class="neutral">
-      <div class="risk-title" id="risk-title">Analyzing...</div>
-      <div class="risk-subtitle" id="risk-subtitle"></div>
-    </div>
-
-    <ul id="reasons"></ul>
-
-    <div id="page-analysis-card" class="neutral">
-      <div class="site-label">PAGE ANALYSIS</div>
-      <div class="risk-subtitle" id="page-analysis-status">Checking page source...</div>
-      <ul id="page-analysis-findings"></ul>
-    </div>
-
-    <button id="scan-again">↻ Scan Again</button>
-  </div>
-  <div class="footer">Private. Local. Phishing Protection.</div>
 
   <script src="heuristics.js"></script>
   <script src="js_features.js"></script>

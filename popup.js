@@ -5,12 +5,14 @@ async function runScan() {
   const domainEl = document.getElementById("site-domain");
   const urlEl = document.getElementById("site-url");
   const resultCard = document.getElementById("result-card");
+  const tagEl = document.getElementById("risk-tag");
   const titleEl = document.getElementById("risk-title");
   const subtitleEl = document.getElementById("risk-subtitle");
   const reasonsList = document.getElementById("reasons");
 
-  resultCard.className = "neutral";
-  titleEl.textContent = "🔄 Scanning...";
+  resultCard.className = "term-box neutral";
+  tagEl.textContent = "[ SCANNING ]";
+  titleEl.textContent = "ANALYZING...";
   subtitleEl.textContent = "";
   reasonsList.innerHTML = "";
 
@@ -24,33 +26,34 @@ async function runScan() {
     const knownSafe = await isKnownDomain(hostname);
 
     if (knownSafe) {
-      resultCard.className = "low-risk";
-      titleEl.innerHTML = "🟢 LOW RISK";
+      resultCard.className = "term-box low-risk";
+      tagEl.textContent = "[ OK ]";
+      titleEl.textContent = "LOW RISK";
       subtitleEl.textContent = "Known trusted domain";
       reasonsList.innerHTML = `
-        <li>✓ Domain appears on a list of well-established, trusted sites</li>
-        <li>✓ ${currentTab.url.startsWith("https") ? "HTTPS enabled" : "Note: not using HTTPS"}</li>
+        <li>Domain appears on a list of well-established, trusted sites</li>
+        <li>${currentTab.url.startsWith("https") ? "HTTPS enabled" : "Note: not using HTTPS"}</li>
       `;
     } else {
       const { score, reasons } = analyzeUrl(currentTab.url);
       const level = getRiskLevel(score);
 
-      let emoji = "🟢", label = "LOW RISK", subtitle = "No significant risk factors found", cls = "low-risk";
+      let tag = "[ OK ]", label = "LOW RISK", subtitle = "No significant risk factors found", cls = "low-risk";
       if (level === "Medium Risk") {
-        emoji = "🟠"; label = "MEDIUM RISK"; subtitle = "Some suspicious patterns detected"; cls = "medium-risk";
+        tag = "[ WARN ]"; label = "MEDIUM RISK"; subtitle = "Some suspicious patterns detected"; cls = "medium-risk";
       } else if (level === "High Risk") {
-        emoji = "🔴"; label = "HIGH RISK"; subtitle = "Multiple phishing indicators found"; cls = "high-risk";
+        tag = "[ ALERT ]"; label = "HIGH RISK"; subtitle = "Multiple phishing indicators found"; cls = "high-risk";
       }
 
-      resultCard.className = cls;
-      titleEl.innerHTML = `${emoji} ${label}`;
+      resultCard.className = "term-box " + cls;
+      tagEl.textContent = tag;
+      titleEl.textContent = label;
       subtitleEl.textContent = subtitle;
 
       if (reasons.length === 0) {
-        reasonsList.innerHTML = "<li>✓ No risk factors detected</li>";
+        reasonsList.innerHTML = "<li>No risk factors detected</li>";
       } else {
-        const icon = level === "High Risk" ? "🚨" : "⚠";
-        reasonsList.innerHTML = reasons.map(r => `<li>${icon} ${r}</li>`).join("");
+        reasonsList.innerHTML = reasons.map(r => `<li>${r}</li>`).join("");
       }
     }
 
@@ -65,8 +68,9 @@ async function runScan() {
   } else {
     domainEl.textContent = "N/A";
     urlEl.textContent = currentTab?.url || "Unknown page";
-    resultCard.className = "neutral";
-    titleEl.textContent = "Not applicable";
+    resultCard.className = "term-box neutral";
+    tagEl.textContent = "[ N/A ]";
+    titleEl.textContent = "NOT APPLICABLE";
     subtitleEl.textContent = "Internal or non-web page";
     reasonsList.innerHTML = "";
   }
@@ -77,14 +81,17 @@ async function runPageAnalysis() {
   const currentTab = tabs[0];
 
   const card = document.getElementById("page-analysis-card");
+  const tagEl = document.getElementById("page-analysis-tag");
   const statusEl = document.getElementById("page-analysis-status");
   const findingsList = document.getElementById("page-analysis-findings");
 
-  card.className = "neutral";
+  card.className = "term-box neutral";
+  tagEl.textContent = "[ SCANNING ]";
   statusEl.textContent = "Checking page source...";
   findingsList.innerHTML = "";
 
   if (!currentTab || !currentTab.id) {
+    tagEl.textContent = "[ N/A ]";
     statusEl.textContent = "Page analysis unavailable on this page";
     return;
   }
@@ -93,29 +100,35 @@ async function runPageAnalysis() {
     const result = await chrome.tabs.sendMessage(currentTab.id, { type: "RUN_SOURCE_ANALYSIS" });
 
     if (!result) {
+      tagEl.textContent = "[ N/A ]";
       statusEl.textContent = "Page analysis unavailable on this page";
       return;
     }
 
     if (result.findings.length === 0) {
-      card.className = "low-risk";
+      card.className = "term-box low-risk";
+      tagEl.textContent = "[ OK ]";
       statusEl.textContent = "No source-level warning signs found";
     } else {
       const hasHigh = result.findings.some(f => f.severity === "high");
       const hasMedium = result.findings.some(f => f.severity === "medium");
 
       if (hasHigh) {
-        card.className = "high-risk";
+        card.className = "term-box high-risk";
+        tagEl.textContent = "[ ALERT ]";
       } else if (hasMedium) {
-        card.className = "medium-risk";
+        card.className = "term-box medium-risk";
+        tagEl.textContent = "[ WARN ]";
       } else {
-        card.className = "low-risk";
+        card.className = "term-box low-risk";
+        tagEl.textContent = "[ OK ]";
       }
 
       statusEl.textContent = `${result.findings.length} finding(s) detected`;
       findingsList.innerHTML = result.findings.map(f => `<li>${f.message}</li>`).join("");
     }
   } catch (err) {
+    tagEl.textContent = "[ N/A ]";
     statusEl.textContent = "Page analysis unavailable on this page";
   }
 }
@@ -142,10 +155,10 @@ async function init() {
   document.getElementById("scan-again").addEventListener("click", () => {
     const btn = document.getElementById("scan-again");
     btn.disabled = true;
-    btn.textContent = "Scanning...";
+    btn.textContent = "SCANNING...";
     runScan().finally(() => {
       btn.disabled = false;
-      btn.textContent = "↻ Scan Again";
+      btn.textContent = "RUN SCAN AGAIN";
     });
   });
 
