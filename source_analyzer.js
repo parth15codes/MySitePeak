@@ -37,6 +37,9 @@ async function analyzeSource() {
   const clipboardFinding = detectClipboardHijacking();
   if (clipboardFinding) findings.push(clipboardFinding);
 
+  const urgencyFinding = await detectUrgencyLanguage();
+  if (urgencyFinding) findings.push(urgencyFinding);
+
   const riskScore = findings.some(f => f.severity === "high") ? 70
     : findings.some(f => f.severity === "medium") ? 40
     : 0;
@@ -153,6 +156,36 @@ function detectClipboardHijacking() {
   }
 
   return null;
+}
+
+const URGENCY_PHRASES = [
+  "verify your account", "account will be suspended", "account has been suspended",
+  "confirm your identity", "unusual activity detected", "unauthorized access detected",
+  "your account will be locked", "immediate action required", "action required within",
+  "update your payment information", "your account will be closed",
+  "suspicious login attempt", "verify your information immediately"
+];
+
+// Gated behind the Tranco allowlist: legitimate security pages on major
+// sites (e.g. myaccount.google.com/security) use very similar wording,
+// confirmed via real-world testing. Skips the check entirely on
+// already-trusted domains, same pattern as detectSuspiciousLinks.
+async function detectUrgencyLanguage() {
+  const knownDomains = await loadKnownDomainsForLinks();
+  const domain = getRegistrableDomain(window.location.hostname);
+  if (knownDomains.has(domain)) return null;
+
+  const text = document.body.innerText.toLowerCase();
+  const matched = URGENCY_PHRASES.filter(p => text.includes(p));
+
+  if (matched.length === 0) return null;
+
+  return {
+    type: "urgency_language_detected",
+    severity: "medium",
+    count: matched.length,
+    message: `Page contains ${matched.length} urgent/account-security phrase(s) commonly used in phishing (e.g. "${matched[0]}").`
+  };
 }
 
 const COMPOUND_SUFFIXES = new Set([
