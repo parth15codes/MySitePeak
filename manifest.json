@@ -17,25 +17,50 @@
     "128": "icons/icon128.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     },
     {
-      "matches": ["<all_urls>"],
-      "js": ["source_analyzer.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "source_analyzer.js"
+      ],
       "run_at": "document_idle"
     }
   ],
-  "permissions": ["activeTab", "tabs"],
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
   "web_accessible_resources": [
     {
-      "resources": ["forest_model.json", "known_domains.json", "known_brands.json"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "forest_model.json",
+        "known_domains.json",
+        "known_brands.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
-  ]
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "mysitepeak@parth15codes.github.io"
+    }
+  }
 }

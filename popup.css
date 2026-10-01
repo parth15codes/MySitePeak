@@ -3,12 +3,14 @@
 body {
   font-family: "Consolas", "Courier New", monospace;
   width: 400px;
+  height: 560px;
   margin: 0;
   padding: 0;
   background: #060a08;
   color: #eaf4ff;
   border-radius: 14px;
   overflow: hidden;
+  position: relative;
 }
 
 #vault-overlay {
@@ -164,6 +166,9 @@ body {
 
 #interior {
   position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 #interior::before {
   content: "";
