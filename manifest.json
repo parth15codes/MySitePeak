@@ -19,6 +19,8 @@
   "background": {
     "service_worker": "background.js",
     "scripts": [
+      "heuristics.js",
+      "known_domains_check.js",
       "background.js"
     ]
   },
