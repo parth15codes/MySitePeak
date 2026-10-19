@@ -11,12 +11,14 @@ Built as a personal cybersecurity project to understand how phishing detection a
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="screenshots/low-risk-example.png" width="300" alt="Low risk result on a trusted site">
-  &nbsp;&nbsp;&nbsp;
-  <img src="screenshots/high-risk-example.png" width="300" alt="High risk result on a suspicious site">
+  <img src="screenshots/low-risk-example.png" width="270" alt="Low risk result on a trusted site">
+  &nbsp;
+  <img src="screenshots/medium-risk-example.png" width="270" alt="Medium risk result on an HTTP-only site">
+  &nbsp;
+  <img src="screenshots/high-risk-example.png" width="270" alt="High risk result on a raw-IP, non-HTTPS URL">
 </p>
 
-<p align="center"><em>Left: a trusted site correctly identified as low risk. Right: a suspicious URL flagged with clear reasoning.</em></p>
+<p align="center"><em>Left to right: a trusted site (low risk), a plain-HTTP site (medium risk), and a raw-IP, non-HTTPS URL (high risk). Each verdict comes with clear, per-signal reasoning.</em></p>
 
 ## ✨ Features
 
