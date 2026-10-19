@@ -20,6 +20,12 @@ Built as a personal cybersecurity project to understand how phishing detection a
 
 <p align="center"><em>Left to right: a trusted site (low risk), a plain-HTTP site (medium risk), and a raw-IP, non-HTTPS URL (high risk). Each verdict comes with clear, per-signal reasoning.</em></p>
 
+<p align="center">
+  <img src="screenshots/vault-unlock.gif" width="270" alt="Vault unlock animation when the popup opens">
+</p>
+
+<p align="center"><em>The popup opens with a vault-unlock animation while the real scan runs underneath, then reveals the result.</em></p>
+
 ## ✨ Features
 
 - **Real-time URL analysis** — automatically scans the active tab as you browse

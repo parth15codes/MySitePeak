@@ -19,7 +19,7 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  min-height: 520px;
+  bottom: 0;
   z-index: 999;
   background: linear-gradient(160deg, #1a1d24, #0d0f13);
   display: flex;
